@@ -1,4 +1,4 @@
-module quicksecret
+module keydash
 
 go 1.22
 
