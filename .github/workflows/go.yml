@@ -24,6 +24,9 @@ jobs:
     - name: Build
       run: go build -o keydash -v ./...
 
+    - name: Build for windowzzz
+      run: GOOS=windows GOARCH=amd64 go build -o keydash.exe -v ./...
+
     - name: Test
       run: go test -v ./...
 
@@ -32,4 +35,10 @@ jobs:
       with:
         name: go-binary
         path: ./keydash
+
+    - name: Upload Go binary for windows as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: go-binary-windows
+        path: ./keydash.exe
 
