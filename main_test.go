@@ -10,6 +10,12 @@ import (
 )
 
 func Test_handleKeyVaultFlag(t *testing.T) {
+	// We need to do this. Hack untill we refactor file operations to a class
+	err := os.MkdirAll(KEYVAULTSFILEPATH, os.ModePerm)
+
+	if err != nil {
+		log.Fatalf("Error creating directory: %v", err)
+	}
 	t.Run("Help", func(t *testing.T) {
 		var buf bytes.Buffer
 		log.SetOutput(&buf)

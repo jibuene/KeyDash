@@ -104,7 +104,7 @@ func getConfigFilePath() string {
 		log.Fatalf("Unsupported OS: %s", runtime.GOOS)
 	}
 
-	configFilePath := filepath.Join(homeDir, "KeyDash")
+	configFilePath := filepath.Join(homeDir, ".KeyDash")
 	return configFilePath
 }
 
