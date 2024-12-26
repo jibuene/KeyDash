@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
@@ -15,30 +17,61 @@ import (
 
 var KEYVAULTSFILE = "keyvaults.txt"
 
+var KEYVAULTSFILEPATH = getConfigFilePath()
+
+// Full path to the keyvaults file
+var KEYVAULTSFILEFQDN = filepath.Join(KEYVAULTSFILEPATH, KEYVAULTSFILE)
+
 func main() {
+	// Create config directory if it does not exist
+	err := os.MkdirAll(KEYVAULTSFILEPATH, os.ModePerm)
+	if err != nil {
+		log.Fatalf("Error creating directory: %v", err)
+	}
+
 	allKeyVaults := getAllKeyVaults()
 
 	keyVaultFlag := flag.String("keyvault", "notset", "Keyvault specific commands.")
 	secretNameFlag := flag.String("secret", "", "The name of the secret to retrieve.")
 	flag.Parse()
+	extraArgs := flag.Args()
+
+	if (len(extraArgs) > 0 && extraArgs[0] == "help") || (len(extraArgs) == 0 && *keyVaultFlag == "notset") {
+		log.Print("Usage: keydash [--keyvault <command>] [--secret <secret-name>]")
+		log.Print("Use `--keyvault help` to see keyvault commands.")
+		log.Print("Example usage:")
+		log.Print("    keydash --keyvault add mykeyvault // Adds a keyvault to the config file.")
+		log.Print("    keydash --secret mysecret         // Retrieves the secret named 'mysecret'")
+		log.Print("    keydash secret                    // Retrieves the secret named 'secret'")
+		return
+	}
 
 	if *keyVaultFlag != "notset" {
-		handleKeyVaultFlag(*keyVaultFlag, allKeyVaults, flag.Args())
+		handleKeyVaultFlag(*keyVaultFlag, allKeyVaults, extraArgs)
 		return
 	}
 
 	if len(allKeyVaults) == 0 {
-		log.Fatal("No keyvaults found. Use --keyvault help to see options.")
+		log.Fatal("No keyvaults found. Use `--keyvault help` to see options.")
 	}
 
-	if *secretNameFlag == "" {
+	secretToFind := ""
+
+	if len(extraArgs) > 0 && extraArgs[0] != "" {
+		secretToFind = extraArgs[0]
+	}
+	if *secretNameFlag != "" {
+		secretToFind = *secretNameFlag
+	}
+
+	if secretToFind == "" {
 		log.Fatal("Secret name is required. Use --secret <secret-name>.")
 	}
 
 	secret := ""
 	for _, keyVault := range allKeyVaults {
 		client := connectToSecretClient(keyVault)
-		secret = findSecret(client, *secretNameFlag)
+		secret = findSecret(client, secretToFind)
 		if secret != "" {
 			break
 		}
@@ -49,6 +82,30 @@ func main() {
 	}
 
 	fmt.Printf("Secret: %s\n", secret)
+}
+
+// getConfigFilePath returns the path of the config file.
+// This file is used to store the keyvault names.
+func getConfigFilePath() string {
+	var homeDir string
+
+	switch runtime.GOOS {
+	case "windows":
+		homeDir = os.Getenv("USERPROFILE")
+		if homeDir == "" {
+			log.Fatal("Could not determine home directory on Windows")
+		}
+	case "linux":
+		homeDir = os.Getenv("HOME")
+		if homeDir == "" {
+			log.Fatal("Could not determine home directory on Linux")
+		}
+	default:
+		log.Fatalf("Unsupported OS: %s", runtime.GOOS)
+	}
+
+	configFilePath := filepath.Join(homeDir, "KeyDash")
+	return configFilePath
 }
 
 // handleKeyVaultFlag handles the keyvault flag passed to the program.
@@ -91,7 +148,7 @@ func getAllKeyVaults() []string {
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Fatalf("Error scanning file %s: %v", KEYVAULTSFILE, err)
+		log.Fatalf("Error scanning file %s: %v", KEYVAULTSFILEFQDN, err)
 	}
 
 	return keyVaults
@@ -137,7 +194,7 @@ func removeKeyVault(keyVaultName string) {
 
 	writer.Flush()
 
-	err = os.Rename("tempfile.txt", KEYVAULTSFILE)
+	err = os.Rename("tempfile.txt", KEYVAULTSFILEFQDN)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -146,7 +203,7 @@ func removeKeyVault(keyVaultName string) {
 // openKeyVaultFile opens the keyvaults file in append mode.
 // If the file does not exist, it will be created.
 func openKeyVaultFile() *os.File {
-	file, err := os.OpenFile(KEYVAULTSFILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	file, err := os.OpenFile(KEYVAULTSFILEFQDN, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -200,3 +257,4 @@ func getSecret(secretClient *azsecrets.Client, secretName string) string {
 
 	return *secret.Value
 }
+
