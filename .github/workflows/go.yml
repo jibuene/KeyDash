@@ -33,13 +33,13 @@ jobs:
       run: find . -name go.mod -execdir go test -v ./... \;
 
     - name: Upload Go binary as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: go-binary
         path: ./keydash
 
     - name: Upload Go binary for windows as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: go-binary-windows
         path: ./keydash.exe
