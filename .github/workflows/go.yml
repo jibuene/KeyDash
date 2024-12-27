@@ -30,7 +30,7 @@ jobs:
       run: GOOS=windows GOARCH=amd64 go build -o keydash.exe -v ./...
 
     - name: Test
-      run: go test -v ./...
+      run: find . -name go.mod -execdir go test -v ./... \;
 
     - name: Upload Go binary as artifact
       uses: actions/upload-artifact@v3
