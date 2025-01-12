@@ -11,6 +11,12 @@ if [ ! -w "$DEST_DIR" ]; then
     exit 3
 fi
 
+# Check if the binary is present in destination directory
+if [ -f "$DEST_DIR/$GO_BINARY" ]; then
+    rm -f "$DEST_DIR/$GO_BINARY"
+    echo "Existing $GO_BINARY binary has been removed."
+fi
+
 # Move the binary to the destination directory
 sudo mv "$GO_BINARY" "$DEST_DIR"
 
