@@ -32,11 +32,15 @@ jobs:
     - name: Test
       run: find . -name go.mod -execdir go test -v ./... \;
 
+    - name: Create ZIP file with Bash script and Go binary
+      run: |
+        zip -r keydash.zip bash-setup/install.sh ./keydash
+
     - name: Upload Go binary as artifact
       uses: actions/upload-artifact@v4
       with:
         name: go-binary
-        path: ./keydash
+        path: keydash.zip
 
     - name: Upload Go binary for windows as artifact
       uses: actions/upload-artifact@v4

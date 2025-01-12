@@ -12,6 +12,15 @@ You need to give execute permission on this file to run it.
 
 Then you just `./keydash` and you're good to go.
 
+## How to install?
+1. Download the latest release from the actions tab.
+2. Unzip the archive.
+3. CD into the directory.
+4. Run install.sh.
+5. Run keydash in you terminal.
+6. ???
+7. Profit.
+
 
 ## Features
 Simple searching for secrets by using the start of its name.
