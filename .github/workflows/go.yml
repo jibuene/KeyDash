@@ -35,6 +35,13 @@ jobs:
     - name: Create ZIP file with Bash script and Go binary
       run: |
         zip -r keydash.zip install.sh ./keydash
+    
+    - name: Build for MacOS (Apple Silicon)
+      run: GOOS=darwin GOARCH=arm64 go build -o keydash -v ./...
+
+    - name: Create ZIP file with Bash script and Go binary for ARM64
+      run: |
+        zip -r keydash-arm64.zip install.sh keydash
 
     - name: Get commit SHA
       id: commit_sha
@@ -51,3 +58,9 @@ jobs:
       with:
         name: "go-binary-windows-${{ env.COMMIT_SHA }}"
         path: "./keydash.exe"
+
+    - name: Upload Go binary for MacOS as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: "go-binary-arm64-${{ env.COMMIT_SHA }}"
+        path: "keydash-arm64.zip"
