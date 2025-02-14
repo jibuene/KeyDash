@@ -121,6 +121,11 @@ func getConfigFilePath() string {
 		if homeDir == "" {
 			log.Fatal("Could not determine home directory on Linux")
 		}
+	case "darwin":
+		homeDir = os.Getenv("HOME")
+		if homeDir == "" {
+			log.Fatal("Could not determine home directory on MacOS")
+		}
 	default:
 		log.Fatalf("Unsupported OS: %s", runtime.GOOS)
 	}
