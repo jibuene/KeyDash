@@ -48,20 +48,22 @@ func main() {
 		log.Fatal("Secret name is required. Use --secret <secret-name>.")
 	}
 
-	secret := ""
+	foundSecretID := ""
+	foundSecret := ""
 	for _, keyVault := range keyVaultConfig.KeyVaults {
 		client := secretclient.ConnectToSecretClient(keyVault)
-		secret = secretclient.FindSecret(client, secretToFind)
-		if secret != "" {
+		foundSecretID, foundSecret = secretclient.FindSecret(client, secretToFind)
+		if foundSecret != "" {
 			break
 		}
 	}
 
-	if secret == "" {
-		log.Fatalf("Secret %s not found in any keyvaults.", *secretNameFlag)
+	if foundSecret == "" {
+		log.Fatalf("Secret %s not found in any keyvaults.", secretToFind)
 	}
 
-	fmt.Printf("Secret: %s\n", secret)
+	fmt.Printf("ID: %s\n", foundSecretID)
+	fmt.Printf("Secret: %s\n", foundSecret)
 }
 
 // handleKeyVaultFlag handles the keyvault flag passed to the program.

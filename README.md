@@ -18,10 +18,25 @@ Then you just `./keydash` and you're good to go.
 3. CD into the directory.
 4. Unzip the keydash.zip file.
 5. Run install.sh.
-6. Run keydash in you terminal.
+6. Run keydash in your terminal.
 7. ???
 8. Profit.
 
+## How to install (on MacOS)
+1. Download the latest ARM64 artifact from the Actions tab
+2. Unzip the archive
+3. `cd` into the directory
+4. Run `install.sh` (with `sudo`)
+5. Run `keydash` in the terminal
+   1. The execution will be blocked, because the `keydash` binary is not verified by Apple
+6. Manually allow the `keydash` binary
+   1. Click `Done` to close the warning dialog
+   2. Open System Settings
+   3. Select Privacy & Security in the left-hand menu
+   4. Scroll down and click `Allow Anyway` on the warning about `keydash` being blocked
+7. Run `keydash` again in the terminal
+8. In the new warning dialog, click `Open Anyway` and enter local account password
+9. Profit!
 
 ## Features
 Simple searching for secrets by using the start of its name.

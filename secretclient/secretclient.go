@@ -10,7 +10,8 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
 )
 
-func FindSecret(secretClient *azsecrets.Client, secretName string) string {
+func FindSecret(secretClient *azsecrets.Client, secretName string) (string, string) {
+	foundSecretID := ""
 	foundSecret := ""
 	pager := secretClient.NewListSecretsPager(nil)
 	for pager.More() {
@@ -20,15 +21,16 @@ func FindSecret(secretClient *azsecrets.Client, secretName string) string {
 		}
 		for _, secret := range page.Value {
 			if strings.HasPrefix(secret.ID.Name(), secretName) {
+				foundSecretID = secret.ID.Name()
 				foundSecret = GetSecret(secretClient, secret.ID.Name())
 				break
 			}
 		}
-		if foundSecret != "" {
+		if foundSecretID != "" {
 			break
 		}
 	}
-	return foundSecret
+	return foundSecretID, foundSecret
 }
 
 func ConnectToSecretClient(keyVaultName string) *azsecrets.Client {
